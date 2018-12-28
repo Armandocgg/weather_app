@@ -1,26 +1,49 @@
 import React from 'react';
-import { StyleSheet, Text, View, Platform, TextInput, KeyboardAvoidingView } from 'react-native';
-
+import { StyleSheet, Text, View, Platform, TextInput, KeyboardAvoidingView, ImageBackground } from 'react-native';
+import SearchInput from  './src/components/SearchInput'
+import imageBackground from './assets/bg/clear.png'
 export default class App extends React.Component {
+  state = { 
+    text: '',
+    location: ''
+  }
+  
+  _handleChangeText = (text) => { this.setState({ text })
+  }
+
+  _handleSubmit = () => {
+    const { text } = this.state
+
+    if ( !text ){
+      return
+    }else {
+      this.setState({ location: text })
+      this.setState({ text: '' })
+      console.log(text)
+    }
+  }
+
   render() {
+    const { location } = this.state
     return (
       <KeyboardAvoidingView
         style={styles.container}
         behavior="padding"
       >
-        <Text style={[styles.lasgeText, styles.textStyle]}>San Francisco</Text>
-        <Text style={[styles.smallText, styles.textStyle]}>Clear</Text>
-        <Text style={[styles.lasgeText, styles.textStyle]}>15º</Text>
-        <TextInput 
-          autoCorrect= {false}
-          style={styles.textInput}
-          autoFocus
-          clearButtonMode="while-editing"
-          placeholder="Search any City"
-          placeholderTextColor="#black"
-          returnKeyType="search"
-          underlineColorAndroid="transparent"
-        />
+        <ImageBackground
+          source={imageBackground}
+          style={styles.imageBackground}
+        >
+          <Text style={[styles.lasgeText, styles.textStyle]}>{location}</Text>
+          <Text style={[styles.smallText, styles.textStyle]}>Clear</Text>
+          <Text style={[styles.lasgeText, styles.textStyle]}>15º</Text>
+          <SearchInput 
+            placeholder="Search a Cool City"
+            handleChangeText={ this._handleChangeText }
+            value= { this.state.text }
+            onSubmit= { this._handleSubmit }
+          />
+        </ImageBackground>
       </KeyboardAvoidingView>
     );
   }
@@ -29,9 +52,6 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   lasgeText: {
     fontSize: 44
@@ -42,18 +62,9 @@ const styles = StyleSheet.create({
   textStyle: {
     fontFamily: Platform.OS === 'ios' ? 'AvenirNext-Regular' : 'Roboto'
   },
-  textInput: {
-    backgroundColor: '#bdc3c7',
-    width: 300,
-    height: 40,
-    marginTop: 20,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    color: 'white',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1},
-    shadowOpacity: 0.8,
-    shadowRadius: 1,
-  }
+  imageBackground: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
