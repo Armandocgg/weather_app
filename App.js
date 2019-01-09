@@ -2,16 +2,21 @@ import React from 'react';
 import { StyleSheet, Text, View, Platform, TextInput, KeyboardAvoidingView, ImageBackground } from 'react-native';
 import SearchInput from  './src/components/SearchInput'
 import imageBackground from './assets/bg/clear.png'
+
+import { fetchLocationId, fetchWeatherById } from './src/api'
+
 export default class App extends React.Component {
   state = { 
     text: '',
-    location: ''
+    location: '',
+    weather: '',
+    temperature: ''
   }
   
   _handleChangeText = (text) => { this.setState({ text })
   }
 
-  _handleSubmit = () => {
+  _handleSubmit =  async () => {
     const { text } = this.state
 
     if ( !text ){
@@ -19,12 +24,18 @@ export default class App extends React.Component {
     }else {
       this.setState({ location: text })
       this.setState({ text: '' })
-      console.log(text)
+
+      const locationData =  await fetchLocationId( text )
+      const woeid = locationData[0].woeid
+      const weatherData = await fetchWeatherById( woeid )
+
+      const { weather, temperature } = weatherData
+      this.setState({ weather, temperature })
     }
   }
 
   render() {
-    const { location } = this.state
+    const { location, weather, temperature  } = this.state
     return (
       <KeyboardAvoidingView
         style={styles.container}
@@ -34,9 +45,9 @@ export default class App extends React.Component {
           source={imageBackground}
           style={styles.imageBackground}
         >
-          <Text style={[styles.lasgeText, styles.textStyle]}>{location}</Text>
-          <Text style={[styles.smallText, styles.textStyle]}>Clear</Text>
-          <Text style={[styles.lasgeText, styles.textStyle]}>15º</Text>
+          <Text style={[styles.lasgeText, styles.textStyle]}>{ location }</Text>
+          <Text style={[styles.smallText, styles.textStyle]}>{ weather }</Text>
+          <Text style={[styles.lasgeText, styles.textStyle]}>{ Math.round(temperature) }º</Text>
           <SearchInput 
             placeholder="Search a Cool City"
             handleChangeText={ this._handleChangeText }
