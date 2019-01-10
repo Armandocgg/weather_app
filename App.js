@@ -1,7 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, Platform,  KeyboardAvoidingView, ActivityIndicator,ImageBackground } from 'react-native';
+import {  Button, StyleSheet, Text, Platform,  KeyboardAvoidingView, ActivityIndicator,ImageBackground } from 'react-native';
+import { Location, Permissions } from 'expo';
+
 import SearchInput from  './src/components/SearchInput'
-import { fetchLocationId, fetchWeatherById } from './src/api'
+import { fetchLocationId, fetchWeatherById, fetchLocationLattLong } from './src/api'
 
 import getWeatherBackground from './src/utils/getWeatherBackground'
 
@@ -10,13 +12,15 @@ export default class App extends React.Component {
     text: '',
     city: '',
     weather: '',
+    location: false,
     temperature: '',
     isLoading: false,
     error: false
   }
 
   componentWillMount () {
-    this._searchWeather("San Francisco")
+    // this._searchWeather("San Francisco")
+    this._getLocationAsync()
   }
   
   _handleChangeText = (text) => { this.setState({ text }) }
@@ -30,7 +34,7 @@ export default class App extends React.Component {
 
   _searchWeather = async ( location ) => {
     try{
-      this.setState({ isLoading: !this.state.isLoading })
+      this.setState({ isLoading: true })
       const locationData =  await fetchLocationId( location )
       const woeid = locationData[0].woeid
 
@@ -45,6 +49,18 @@ export default class App extends React.Component {
       })
     }
   }
+
+  _getLocationAsync = async () => {
+    this.setState({ isLoading: true })
+    let { status } = await Permissions.askAsync(Permissions.LOCATION)
+    if (status !== 'granted') {
+      this._searchWeather("San Francisco")
+    }
+    let location = await Location.getCurrentPositionAsync({})
+    const { latitude, longitude } = location.coords
+    const weather = await fetchLocationLattLong( latitude, longitude )
+    this._searchWeather( weather[0].title )
+  };
 
   render() {
     const {  city, weather, temperature, isLoading, error  } = this.state
@@ -76,6 +92,11 @@ export default class App extends React.Component {
             handleChangeText={ this._handleChangeText }
             value= { this.state.text }
             onSubmit= { this._handleSubmit }
+          />
+          <Button
+            onPress={ this._getLocationAsync }
+            title="Ubicacion Actual"
+            color="#15846b"
           />
         </ImageBackground>
       </KeyboardAvoidingView>

@@ -9,6 +9,13 @@ async function fetchLocationId ( city ) {
   return data
 }
 
+async function fetchLocationLattLong ( latt, long ) {
+  const url = `${HOST}/search/?lattlong=${latt},${long}`
+  const response = await fetch( url )
+  const data = await response.json()
+  return data
+}
+
 async function fetchWeatherById ( locationId ) {
   const url = `${HOST}/${locationId}`
   const response = await fetch( url )
@@ -25,5 +32,6 @@ async function fetchWeatherById ( locationId ) {
 
 export {
   fetchLocationId,
+  fetchLocationLattLong,
   fetchWeatherById
 }
